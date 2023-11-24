@@ -1,7 +1,7 @@
+import os
 import requests
 import json
 import pandas as pd
-import os
 
 # 共享的标头
 headers = {
@@ -18,8 +18,8 @@ headers = {
 }
 
 def read_names_from_file(file_path):
-    # 使用 os.path.join 和 os.environ 获取绝对路径
-    absolute_path = os.path.join(os.environ["GITHUB_WORKSPACE"], file_path)
+    # 使用相对路径
+    absolute_path = file_path
     
     # 调试: 打印当前工作目录
     print("当前工作目录:", os.getcwd())
@@ -35,42 +35,28 @@ def read_names_from_file(file_path):
     with open(absolute_path, "r", encoding="utf-8") as user_file:
         return user_file.read().split(',')
 
-def read_names_from_file(file_path):
-    # 使用 os.path.join 和 os.environ 获取绝对路径
-    absolute_path = os.path.join(os.environ["GITHUB_WORKSPACE"], file_path)
-    
-    with open(absolute_path, "r", encoding="utf-8") as user_file:
-        return user_file.read().split(',')
+def generate_html_from_csv(csv_file, output_html):
+    # 读取CSV文件
+    df = pd.read_csv(csv_file)
 
-def fetch_data(url, params):
-    response = requests.post(url, headers=headers, data=params)
-    try:
-        return json.loads(response.text)
-    except json.JSONDecodeError as e:
-        print(f"错误: 在查询数据时发生解析错误: {e}")
-        return None
+    # 从DataFrame生成HTML
+    html_content = df.to_html(index=False)
 
-def count_data_for_name(url, name, column_name, filter_condition=None):
-    page_num = 0
-    count = 0
-
-    while True:
-        params = {"key": "value", "pageNum": str(page_num)}
-        json_data = fetch_data(url, params)
-
-        if not json_data or "list" not in json_data or not json_data["list"]:
-            break
-
-        for item in json_data["list"]:
-            if item.get("type_in") == name and (not filter_condition or filter_condition(item)):
-                count += 1
-
-        if page_num < json_data.get("totalPage", 1):
-            page_num += 1
-        else:
-            break
-
-    return {column_name: count}
+    # 创建HTML文件，使用相对路径保存到工作区的根目录
+    with open(output_html, "w", encoding="utf-8") as html_file:
+        html_file.write(f"""
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>统计结果</title>
+</head>
+<body>
+  <h2>统计结果</h2>
+  {html_content}
+</body>
+</html>
+""")
 
 def main():
     names = read_names_from_file("user.txt")
@@ -88,36 +74,13 @@ def main():
         result_yuyue = count_data_for_name(url_yuyue, name, "预约互联网", lambda item: item.get("huifang") == "预约互联网医院")
         df = pd.concat([df, pd.DataFrame({"姓名": [name], **result_dengji, **result_yuyue})], ignore_index=True)
 
-    # 保存结果到表格
+    # 保存结果到表格，使用相对路径保存到工作区的根目录
     df.to_csv("baobiao.csv", index=False, encoding='utf-8-sig')
 
-    print("查询结果已保存在 baobiao.csv 文件中。")
-
-    # 生成HTML文件
+    # 生成HTML文件，使用相对路径保存到工作区的根目录
     generate_html_from_csv("baobiao.csv", "index.html")
 
-def generate_html_from_csv(csv_file, output_html):
-    # 读取CSV文件
-    df = pd.read_csv(csv_file)
-
-    # 从DataFrame生成HTML
-    html_content = df.to_html(index=False)
-
-    # 创建HTML文件
-    with open(output_html, "w", encoding="utf-8") as html_file:
-        html_file.write(f"""
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>统计结果</title>
-</head>
-<body>
-  <h2>统计结果</h2>
-  {html_content}
-</body>
-</html>
-""")
+    print("查询结果已保存在 baobiao.csv 文件中。")
 
 if __name__ == "__main__":
     main()
