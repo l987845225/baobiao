@@ -1,6 +1,7 @@
 import requests
 import json
 import pandas as pd
+import os
 
 # 共享的标头
 headers = {
