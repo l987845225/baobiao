@@ -1,13 +1,10 @@
-#此工作流将安装Python依赖项，使用单个版本的Python运行测试和lint
-#有关更多信息，请参阅：https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
-
 name: Python application
 
 on:
   push:
-    branches: [ "html" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "html" ]
+    branches: [ "main" ]
 
 permissions:
   contents: read
@@ -17,8 +14,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-      with:
-        ref: html  # 指定你的分支名
     - name: Set up Python 3.10
       uses: actions/setup-python@v3
       with:
@@ -27,7 +22,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install flake8 pytest
-        pip install pandas
+        pip install requests pandas
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Lint with flake8
       run: |
@@ -37,6 +32,4 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        pytest wj/bbwy.py  # 指定你的测试文件路径
-
-
+        pytest
