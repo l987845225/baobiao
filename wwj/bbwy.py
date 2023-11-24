@@ -21,6 +21,24 @@ def read_names_from_file(file_path):
     # 使用 os.path.join 和 os.environ 获取绝对路径
     absolute_path = os.path.join(os.environ["GITHUB_WORKSPACE"], file_path)
     
+    # 调试: 打印当前工作目录
+    print("当前工作目录:", os.getcwd())
+    
+    # 调试: 打印绝对路径
+    print("绝对路径:", absolute_path)
+
+    # 调试: 检查文件是否存在
+    if not os.path.exists(absolute_path):
+        print(f"错误: 文件未找到: {absolute_path}")
+        return []
+
+    with open(absolute_path, "r", encoding="utf-8") as user_file:
+        return user_file.read().split(',')
+
+def read_names_from_file(file_path):
+    # 使用 os.path.join 和 os.environ 获取绝对路径
+    absolute_path = os.path.join(os.environ["GITHUB_WORKSPACE"], file_path)
+    
     with open(absolute_path, "r", encoding="utf-8") as user_file:
         return user_file.read().split(',')
 
