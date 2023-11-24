@@ -17,6 +17,32 @@ headers = {
     "X-Requested-With": "XMLHttpRequest",
 }
 
+def read_names_from_file(file_path):
+    # 使用相对路径
+    absolute_path = file_path
+    
+    # 调试: 打印当前工作目录
+    print("当前工作目录:", os.getcwd())
+    
+    # 调试: 打印绝对路径
+    print("绝对路径:", absolute_path)
+
+    # 调试: 检查文件是否存在
+    if not os.path.exists(absolute_path):
+        print(f"错误: 文件未找到: {absolute_path}")
+        return []
+
+    with open(absolute_path, "r", encoding="utf-8") as user_file:
+        return user_file.read().split(',')
+
+def fetch_data(url, params):
+    response = requests.post(url, headers=headers, data=params)
+    try:
+        return json.loads(response.text)
+    except json.JSONDecodeError as e:
+        print(f"错误: 在查询数据时发生解析错误: {e}")
+        return None
+
 def count_data_for_name(url, name, column_name, filter_condition=None):
     page_num = 0
     count = 0
@@ -38,25 +64,6 @@ def count_data_for_name(url, name, column_name, filter_condition=None):
             break
 
     return {column_name: count}
-
-
-def read_names_from_file(file_path):
-    # 使用相对路径
-    absolute_path = file_path
-    
-    # 调试: 打印当前工作目录
-    print("当前工作目录:", os.getcwd())
-    
-    # 调试: 打印绝对路径
-    print("绝对路径:", absolute_path)
-
-    # 调试: 检查文件是否存在
-    if not os.path.exists(absolute_path):
-        print(f"错误: 文件未找到: {absolute_path}")
-        return []
-
-    with open(absolute_path, "r", encoding="utf-8") as user_file:
-        return user_file.read().split(',')
 
 def generate_html_from_csv(csv_file, output_html):
     # 读取CSV文件
