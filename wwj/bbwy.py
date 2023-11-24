@@ -72,7 +72,7 @@ def generate_html_from_csv(csv_file, output_html):
     # 从DataFrame生成HTML
     html_content = df.to_html(index=False)
 
-    # 创建HTML文件，使用相对路径保存到工作区的根目录
+    # 创建HTML文件，使用相对路径保存到 GitHub Actions 工作目录中
     with open(output_html, "w", encoding="utf-8") as html_file:
         html_file.write(f"""
 <!DOCTYPE html>
@@ -104,13 +104,16 @@ def main():
         result_yuyue = count_data_for_name(url_yuyue, name, "预约互联网", lambda item: item.get("huifang") == "预约互联网医院")
         df = pd.concat([df, pd.DataFrame({"姓名": [name], **result_dengji, **result_yuyue})], ignore_index=True)
 
-    # 保存结果到表格，使用相对路径保存到工作区的根目录
+    # 保存结果到表格，使用相对路径保存到 GitHub Actions 工作目录中
     df.to_csv("baobiao.csv", index=False, encoding='utf-8-sig')
 
-    # 生成HTML文件，使用相对路径保存到工作区的根目录
+    # 生成HTML文件，使用相对路径保存到 GitHub Actions 工作目录中
     generate_html_from_csv("baobiao.csv", "index.html")
 
     print("查询结果已保存在 baobiao.csv 文件中。")
+
+    # 上传 artifacts，包含 baobiao.csv 和 index.html
+    os.system("echo '::set-output name=BAOBIAO_FILES::baobiao.csv index.html'")
 
 if __name__ == "__main__":
     main()
