@@ -17,7 +17,10 @@ headers = {
 }
 
 def read_names_from_file(file_path):
-    with open(file_path, "r", encoding="utf-8") as user_file:
+    # 使用 os.path.join 和 os.environ 获取绝对路径
+    absolute_path = os.path.join(os.environ["GITHUB_WORKSPACE"], file_path)
+    
+    with open(absolute_path, "r", encoding="utf-8") as user_file:
         return user_file.read().split(',')
 
 def fetch_data(url, params):
