@@ -17,6 +17,29 @@ headers = {
     "X-Requested-With": "XMLHttpRequest",
 }
 
+def count_data_for_name(url, name, column_name, filter_condition=None):
+    page_num = 0
+    count = 0
+
+    while True:
+        params = {"key": "value", "pageNum": str(page_num)}
+        json_data = fetch_data(url, params)
+
+        if not json_data or "list" not in json_data or not json_data["list"]:
+            break
+
+        for item in json_data["list"]:
+            if item.get("type_in") == name and (not filter_condition or filter_condition(item)):
+                count += 1
+
+        if page_num < json_data.get("totalPage", 1):
+            page_num += 1
+        else:
+            break
+
+    return {column_name: count}
+
+
 def read_names_from_file(file_path):
     # 使用相对路径
     absolute_path = file_path
